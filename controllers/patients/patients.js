@@ -27,14 +27,8 @@ const fileFilter = (req, file, cb) => {
 
 exports.basicRegister = async (req, res, next) => {
     try {
-//         Name* (should be at least 3 characters) d
-// 2. Address* (should be at least 10 characters) d
-// 3. Email* (should be a valid email address) d
-// 4. Phone number (should be at least 10 number + country code) d
-// 5. Password* (must contain one upper character, one lower character and a number. Max
-// length 15 and min length 8)
-// 6. Patient Photo*
-      let { patientName, patientPhoneNumber, patientAddress, patientEmail, patientPassword, userID} = req.body;
+
+      let { patientName,countryCode, patientPhoneNumber, patientAddress, patientEmail, patientPassword, userID} = req.body;
       console.log(req.body);
 
       if(!patientName || !patientAddress || !patientPhoneNumber || !patientEmail || !patientPassword || !userID)
@@ -87,7 +81,7 @@ exports.basicRegister = async (req, res, next) => {
         req.body.patientPhoto= currentData;
       });
       
-
+      req.body.patientPhoneNumber= countryCode+" "+patientPhoneNumber;
       req.body.patientPassword = await bcrypt.hash(req.body.patientPassword, 12);
       
       
@@ -110,9 +104,59 @@ exports.basicRegister = async (req, res, next) => {
         },
       });
     } catch (error) {
-      return next(error);
+      return res.status(400).json({
+        status: false,
+        message: error
+      });
     }
   };
+
+exports.uploadImage= async (req, res)=>{
+  try {
+//     const patientPhoneNumber= req.body.patientPhoneNumber;
+//     console.log(req.file);
+// console.log("number"+ patientPhoneNumber);
+//     const foundpatient= await Patients.findOne({where: { patientPhoneNumber: patientPhoneNumber
+//     }});
+
+//     if(!foundpatient) return res.status(200).json({
+//       status: false,
+//       message: 'Patient not found'
+//     });
+
+    let upload = multer({ storage: storage, fileFilter: fileFilter }).single('myImage');
+      upload(req, res, function(err) {
+        // req.file contains information of uploaded file
+        // req.body contains information of text fields, if there were any
+
+        if (req.fileValidationError) {
+            return res.send(req.fileValidationError);
+        }
+        else if (!req.file) {
+            return res.send('Please select an image to upload');
+        }
+        else if (err instanceof multer.MulterError) {
+            return res.send(err);
+        }
+        else if (err) {
+            return res.send(err);
+        }
+        req.body.patientPhoto= currentData;
+      });
+console.log(currentData);
+      // foundpatient.patientPhoto= currentData;
+      // foundpatient.save().then(data=> {
+      //   return res.send('Image uploaded');
+      // });
+      res.send('done');
+
+  } catch (error) {
+    return res.status(400).json({
+      status:false,
+      message:error
+    })
+  }
+}
 
 
 exports.updatePatient= async(req, res, next)=>{
@@ -132,7 +176,10 @@ exports.updatePatient= async(req, res, next)=>{
           message: 'Please provide header',
         });
       }
-      const decoded = await promisify(jwt.verify)(token, process.env.JWT_KEY);
+     
+      
+       const decoded = await promisify(jwt.verify)(token, process.env.JWT_KEY);
+      
 
       const currentUser = await Patients.findOne({ where: { patientID: decoded.user } });
     if (!currentUser) {
@@ -163,15 +210,74 @@ exports.updatePatient= async(req, res, next)=>{
       currentUser.patientPassword= patientPassword,
       currentUser.userID= userID;
 
-      await currentUser.save();
+      currentUser.save().then(data=>{
+        data.patientPassword=""
+        return res.status(200).json({
+          status: true,
+          message: 'Profile updated successfully',
+          data: [data]
+        });
+      });
 
+      
+
+    } catch (error) {
+      const refreshToken = req.header('x-refresh-token');
+
+      if (!refreshToken) {
+        return res.status(400).json({
+          status: false,
+          message: "Please provide refresh token"
+        });
+      }
+  console.log("In refresh");
+      try {
+        const decodedRefreshToken = await promisify(jwt.verify)(refreshToken, process.env.JWT_REFRESH_KEY);
+  
+        const currentUser = await Patients.findOne({ where: { patientID: decodedRefreshToken.user } });
+      if (!currentUser) {
+      return res.status(400).json({
+        status: true,
+        message: 'User does not belongs with provided ID',
+        });
+      }
+
+        if(!req.body.patientPhoneNumber || req.body.patientPhoneNumber==null) return res.status(400).json({
+          status: true,
+          message: 'Enter mobile number',
+    });
+
+      let { patientName, patientPhoneNumber, patientAddress, patientEmail, patientPassword, userID} = req.body;
+    if(!patientName || !patientAddress || !patientPhoneNumber || !patientEmail || !patientPassword || !userID)
+    {
+      return res.status(400).json({
+        status: true,
+        message: 'Enter mandatory details',
+  });
+    }
+
+    currentUser.patientName= patientName,
+    currentUser.patientPhoneNumber= patientPhoneNumber,
+    currentUser.patientAddress= patientAddress,
+    currentUser.patientEmail= patientEmail,
+    currentUser.patientPassword= patientPassword,
+    currentUser.userID= userID;
+
+    currentUser.save().then(data=>{
+      data.patientPassword=""
       return res.status(200).json({
         status: true,
         message: 'Profile updated successfully',
+        data: [data]
       });
-
-    } catch (error) {
-        return next(error);
+    });
+  
+      } catch (error) {
+        return res.status(400).json({
+          status: false,
+          message: error
+        });
+      }
     }
 }
 
@@ -224,6 +330,9 @@ exports.login = async (req, res, next) => {
       }
     });
   } catch (error) {
-    return next(error);
+    return res.status(400).json({
+      status: false,
+      message: error
+    });
   }
 };

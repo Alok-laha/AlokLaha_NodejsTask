@@ -8,7 +8,7 @@ const { promisify } = require('util');
 
 exports.basicRegister = async (req, res, next) => {
     try {
-      let { firstName, lastName, phoneNumber, userPassword, hospitalName, state, userPincode } = req.body;
+      let { firstName, lastName, countryCode, phoneNumber, userPassword, hospitalName, state, userPincode } = req.body;
      
       if(firstName.length>19 || lastName.length>19 ||!firstName ||!lastName){
         return res.status(400).json({
@@ -21,6 +21,7 @@ exports.basicRegister = async (req, res, next) => {
       });
 
       req.body.userPassword = await bcrypt.hash(req.body.userPassword, 12);
+      req.body.phoneNumber= countryCode+" "+phoneNumber
       
       const user = await Users.create(req.body);
   
@@ -41,7 +42,10 @@ exports.basicRegister = async (req, res, next) => {
         },
       });
     } catch (error) {
-      return next(error);
+      return res.status(400).json({
+        status: false,
+        message: error
+      });
     }
   };
 
@@ -96,7 +100,10 @@ exports.basicRegister = async (req, res, next) => {
         }
       });
     } catch (error) {
-      return next(error);
+      return res.status(400).json({
+        status: false,
+        message: error
+      });
     }
   };
   
@@ -148,7 +155,49 @@ exports.findAllPatients= async(req, res, next)=> {
         });
     
   } catch (error) {
-    return next(error);
+    const refreshToken = req.header('x-refresh-token');
+
+      if (!refreshToken) {
+        return res.status(400).json({
+          status: false,
+          message: "Please provide refresh token"
+        });
+      }
+  console.log("In refresh");
+      try {
+        const decodedRefreshToken = await promisify(jwt.verify)(refreshToken, process.env.JWT_REFRESH_KEY);
+  
+        const currentUser = await Users.findOne({ where: { userID: decodedRefreshToken.user } });
+      if (!currentUser) {
+      return res.status(400).json({
+        status: true,
+        message: 'User does not belongs with provided ID',
+        });
+      }
+//Fetching all patients of a doctor 
+      const statement= "SELECT * from patients where patients.userID= "+currentUser.userID+" ORDER BY patients.patientName ASC";
+      const allPatients= await sequelize.query(statement, {type: QueryTypes.SELECT});
+  
+      if(allPatients.length===0) return res.status(200).json({
+        status: true,
+        message: 'No patient found',
+        });
+  
+        return res.status(400).json({
+          status: true,
+          message: 'patients found',
+          totalPatients: allPatients.length,
+          data:{
+            allPatients
+          }
+          });
+  
+      } catch (error) {
+        return res.status(400).json({
+          status: false,
+          message: error
+        });
+      }
   }
 }
 
@@ -198,6 +247,9 @@ exports.findPatientsOfHosptals= async (req, res, next)=> {
       
 
   } catch (error) {
-    return next(error);
+    return res.status(400).json({
+      status: false,
+      message: error
+    });
   }
 }
