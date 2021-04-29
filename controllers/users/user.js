@@ -145,7 +145,7 @@ exports.findAllPatients= async(req, res, next)=> {
       message: 'No patient found',
       });
 
-      return res.status(400).json({
+      return res.status(200).json({
         status: true,
         message: 'patients found',
         totalPatients: allPatients.length,
