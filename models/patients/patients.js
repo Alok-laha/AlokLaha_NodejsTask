@@ -25,7 +25,7 @@ const Patients = sequelize.define(
         allowNull: false,
       },
       patientPhoneNumber: {
-        type: Sequelize.STRING(10),
+        type: Sequelize.STRING(),
         allowNull: false,
         unique: true,
       },

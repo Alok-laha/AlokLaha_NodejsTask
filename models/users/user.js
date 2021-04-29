@@ -19,7 +19,7 @@ const Users = sequelize.define(
         allowNull: false,
     },
     phoneNumber: {
-      type: Sequelize.STRING(10),
+      type: Sequelize.STRING(),
       allowNull: false,
       unique: true,
     },
@@ -56,7 +56,7 @@ const Users = sequelize.define(
 );
 
 Users
-  .sync({alter:true})
+  .sync()
   .then((result) => {
     console.log('user table created');
   })

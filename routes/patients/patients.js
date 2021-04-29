@@ -4,7 +4,8 @@ const patientControllers= require('../../controllers/patients/patients');
 
 router.post('/BasicRegister',patientControllers.basicRegister);
 router.post('/Login', patientControllers.login);
-router.post('/updateProfile', patientControllers.updatePatient);
+router.put('/updateProfile', patientControllers.updatePatient);
+router.post('/uploadImage', patientControllers.uploadImage);
 
 
 
