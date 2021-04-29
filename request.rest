@@ -2,9 +2,10 @@ POST http://localhost:4000/doctor/BasicRegister HTTP/1.1
 Content-Type: application/json
 
 {
-    "firstName" :"ddefge",
-    "lastName" :"drhfg",
-    "phoneNumber" :"8931224750",
+    "firstName" :"Swami",
+    "lastName" :"Vivekananda",
+    "countryCode": "+91",
+    "phoneNumber" :"9999999999",
     "userPassword": "1234",
     "hospitalName" :"Apollo Hospitals",
     "state" :"west bengal",
@@ -23,7 +24,8 @@ Content-Type: application/json
 ### doctor finding patient
 POST http://localhost:4000/doctor/findPatients HTTP/1.1
 Content-Type: application/json
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoxLCJpYXQiOjE2MTkxOTIwNDEsImV4cCI6MTYxOTI3ODQ0MX0.uSMtxRNqq0ep0lmKIMlrMzUpcN8r-LdKO__TYRORC0A
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjo1MywiaWF0IjoxNjE5Njc0MDkwLCJleHAiOjE2MTk3NjA0OTB9.V1ZiXnpyI3PXekBzcB_YCjQuOTv819liLdcnwELCZo0
+x-refresh-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjo1MywiaWF0IjoxNjE5Njc0MDkwLCJleHAiOjE2MjAyNzg4OTB9.6KWeUeE1eWGy6tXkjvcSk3eiffDZB1ATVURy6XHByhw
 
 ### finding all patients belongs to a specific hospital
 POST http://localhost:4000/doctor/patientsOfHospital HTTP/1.1
@@ -39,12 +41,13 @@ POST http://localhost:4000/patient/BasicRegister HTTP/1.1
 Content-Type: application/json
 
 {
-    "patientName" :"Avik",
-    "patientPhoneNumber" :"7970143133",
+    "patientName" :"Avik Sarkar",
+    "countryCode": "+91",
+    "patientPhoneNumber" :"9999999999",
     "patientAddress": "Nischinda Ghoshpara",
-    "patientEmail":"avik@gmail.com",
+    "patientEmail":"aviksarkar@gmail.com",
     "patientPassword": "1234",
-    "userID": 1
+    "userID": 53
 }
 
 ### patient login
@@ -52,20 +55,21 @@ POST http://localhost:4000/patient/Login HTTP/1.1
 Content-Type: application/json
 
 {
-    "patientPhoneNumber" :"9051224756",
+    "patientPhoneNumber" :"7980143133",
     "patientPassword": "1234"
 }
 
 ### update profile
-POST http://localhost:4000/patient/updateProfile HTTP/1.1
+PUT http://localhost:4000/patient/updateProfile HTTP/1.1
 Content-Type: application/json
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoxLCJpYXQiOjE2MTkxOTAyODYsImV4cCI6MTYxOTI3NjY4Nn0.zHMAEeia0_6q1TrV2mqJ7mQb8pu_nMujbN7MNKIZQfY
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoyLCJpYXQiOjE2MTk2MDQ0MjUsImV4cCI6MTYxOTY5MDgyNX0.QT7VVB9jw6FoGx2c9Ztz41TGaAham7epPkwh6ZFIo7w
+x-refresh-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoxLCJpYXQiOjE2MTkxOTIwNDEsImV4cCI6MTYxOTI3ODQ0MX0.uSMtxRNqq0ep0lmKIMlrMzUpcN8r-LdKO__TYRORC0A
 
 {
-    "patientName" :"Ayan",
-    "patientPhoneNumber" :"9051224756",
+    "patientName" :"Alok Laha",
+    "patientPhoneNumber" :"7980143133",
     "patientAddress": "Nischinda bally",
-    "patientEmail":"ayan@gmail.com",
+    "patientEmail":"aloklaha98@gmail.com",
     "patientPassword": "1234",
     "userID": 1
 }

@@ -16,6 +16,10 @@ app.use(express.urlencoded({
 app.use(express.static(__dirname + '/public/'));
 app.set("view engine", "ejs");
 
+app.get('/patient/uploadImage', (req, res)=> {
+  res.render('image');
+})
+
 app.use('/doctor', doctorRegisterRoutes);
 app.use('/patient', patientRegisterRoutes);
 
