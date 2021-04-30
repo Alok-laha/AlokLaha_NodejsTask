@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
        console.log(file);
-       currentData=file.fieldname + '-' + Date.now() + path.extname(file.originalname);
+       currentData=file.fieldname + '-' + Date.now() + '-' +file.originalname;
        cb(null, currentData);
   }
 });
@@ -46,42 +46,23 @@ exports.basicRegister = async (req, res, next) => {
         });
       }
 
-      if (!patientEmail.match(/@/g)) {
+      var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+      if (!patientEmail.match(mailformat)) {
         return res.status(400).json({
           status: true,
           message: 'Please enter a valid e-mail ID',
         });
       }
 
-      // let re=new RegExp("(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}");
-      // if(!re.test(req.body.patientPassword)){
-      //   return res.status(400).json({
-      //     status: true,
-      //     message: 'must contain one upper character, one lower character and a number. Max length 15 and min length 8',
-      //   });
-      // }
-
-      let upload = multer({ storage: storage, fileFilter: fileFilter }).single('myImage');
-      upload(req, res, function(err) {
-        // req.file contains information of uploaded file
-        // req.body contains information of text fields, if there were any
-
-        if (req.fileValidationError) {
-            return res.send(req.fileValidationError);
-        }
-        else if (!req.file) {
-            return res.send('Please select an image to upload');
-        }
-        else if (err instanceof multer.MulterError) {
-            return res.send(err);
-        }
-        else if (err) {
-            return res.send(err);
-        }
-        req.body.patientPhoto= currentData;
-      });
+       let re=new RegExp("(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}");
+      if(!re.test(req.body.patientPassword)){
+        return res.status(400).json({
+          status: true,
+          message: 'must contain one upper character, one lower character and a number. Max length 15 and min length 8',
+        });
+      }
       
-      req.body.patientPhoneNumber= countryCode+" "+patientPhoneNumber;
+       req.body.patientPhoneNumber= countryCode+" "+patientPhoneNumber;
       req.body.patientPassword = await bcrypt.hash(req.body.patientPassword, 12);
       
       
@@ -95,14 +76,20 @@ exports.basicRegister = async (req, res, next) => {
       const refreshToken = jwt.sign({ user: user.patientID }, process.env.JWT_REFRESH_KEY, {
         expiresIn: '7d',
       });
-      res.status(200).json({
-        status: true,
-        message: 'Registered successfully',
-        data: {
-          token,
-          refreshToken,
-        },
-      });
+      let data= user.toJSON();
+      data.token= token;
+      data.refreshToken= refreshToken;
+      console.log("Data is"+data)
+      res.render("show",{userDetails: data});
+      // res.status(200).json({
+      //   status: true,
+      //   message: 'Registered successfully',
+      //   data: {
+      //     token,
+      //     refreshToken,
+      //   },
+      // });
+      
     } catch (error) {
       return res.status(400).json({
         status: false,
@@ -113,16 +100,7 @@ exports.basicRegister = async (req, res, next) => {
 
 exports.uploadImage= async (req, res)=>{
   try {
-//     const patientPhoneNumber= req.body.patientPhoneNumber;
-//     console.log(req.file);
-// console.log("number"+ patientPhoneNumber);
-//     const foundpatient= await Patients.findOne({where: { patientPhoneNumber: patientPhoneNumber
-//     }});
-
-//     if(!foundpatient) return res.status(200).json({
-//       status: false,
-//       message: 'Patient not found'
-//     });
+      const patientID= req.params.id;
 
     let upload = multer({ storage: storage, fileFilter: fileFilter }).single('myImage');
       upload(req, res, function(err) {
@@ -141,14 +119,14 @@ exports.uploadImage= async (req, res)=>{
         else if (err) {
             return res.send(err);
         }
-        req.body.patientPhoto= currentData;
+        
       });
-console.log(currentData);
-      // foundpatient.patientPhoto= currentData;
-      // foundpatient.save().then(data=> {
-      //   return res.send('Image uploaded');
-      // });
-      res.send('done');
+    console.log("image details "+currentData);
+      const currentUser= await Patients.findOne({where: { patientID: patientID }});
+      if(!currentUser) return res.send('patientID mismatch')
+      currentUser.patientPhoto= currentData;
+      currentUser.save().then(d=>res.send('uploaded'));
+      
 
   } catch (error) {
     return res.status(400).json({
@@ -158,6 +136,9 @@ console.log(currentData);
   }
 }
 
+exports.getRegisterForm= (req, res)=> {
+  res.render('register');
+}
 
 exports.updatePatient= async(req, res, next)=>{
     try {
