@@ -1,0 +1,33 @@
+<!-- "patientName" :"Aniket ghosh",
+    "countryCode": "+91",
+    "patientPhoneNumber" :"8888888888",
+    "patientAddress": "Nischinda Ghoshpara",
+    "patientEmail":"aniketghosh@gmail.com",
+    "patientPassword": "1234",
+    "userID": 53 -->
+
+    <html>
+        <head>
+            <title>Register</title>
+        </head>
+        <body>
+            <form action="/patient/BasicRegister" method="POST">
+                <lebel for="i1">Name</lebel>
+                <input type="text" id="i1" name="patientName" required/><br>
+                <lebel for="i2">countryCode</lebel>
+                <input type="text" id="i2" name="countryCode" required/><br>
+                <lebel for="i3">Phone number</lebel>
+                <input type="text" id="i3" name="patientPhoneNumber" required/><br>
+                <lebel for="i4">Address</lebel>
+                <input type="text" id="i4" name="patientAddress" required/><br>
+                <lebel for="i5">E mail</lebel>
+                <input type="email" id="i5" name="patientEmail" required/><br>
+                <lebel for="i6">Password</lebel>
+                <input type="text" id="i6" name="patientPassword" required/><br>
+                <lebel for="i7">dorctor ID</lebel>
+                <input type="text" id="i7" name="userID" required/><br>
+
+                <input type="submit" value="submit" />
+            </form>
+        </body>
+    </html>
