@@ -27,7 +27,8 @@ jobs:
      
       - run: npm run build --if-present
       - name: Mysql test
-      - run: sudo service mysql start
-      - run: mysql -uroot -proot -e "SHOW DATABASES"
-      - run: mysql -uroot -proot -e "CREATE DATABASE test_db"
-      - run: mysql -uroot -proot -e "SHOW DATABASES"
+        run: |
+          sudo service mysql start
+          mysql -uroot -proot -e "SHOW DATABASES"
+          mysql -uroot -proot -e "CREATE DATABASE test_db"
+          mysql -uroot -proot -e "SHOW DATABASES"
