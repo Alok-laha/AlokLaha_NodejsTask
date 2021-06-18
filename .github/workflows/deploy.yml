@@ -1,16 +1,17 @@
 name: Node.js CI
+env:
+    MYSQL_DATABASE: test_db
+    MYSQL_USER: root
+    MYSQL_PASSWORD: root
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: ubuntu
     strategy:
       matrix:
         node-version: [14.x]
